@@ -1,6 +1,6 @@
 {
   "name": "parcel-plugin-static-files",
-  "version": "1.0.8",
+  "version": "1.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,5 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "mkdirp": "^0.5.1"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/FaBeyyy/parcel-plugin-static-files.git"
   }
+  
 }

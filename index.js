@@ -3,20 +3,20 @@ const path = require('path');
 const mkdirp = require('mkdirp');
 const prePath = '../../';
 const appDir = path.dirname(require.main.filename);
-const outputDir = path.join(__dirname, "../../", '/dist/static/'); //relative to src folder
+const outputDir = path.join(__dirname, "../../", '/dist/src/'); //relative to src folder
 const sourceDir = path.join(__dirname, "../../", '/src/');
 const fileExtensionsToCopy = ['json', 'html'];
 let filesToAdd = []; //obj that has all files that should be added
 let filesThatExist = []; //obj that has all files that already exist 
 
-function resolveStaticFiles() { //TODO: check if dist exists 
+function resolveStaticFiles(exit = false) { //TODO: check if dist exists 
     fs.stat(outputDir, function (err, stats) {
         if (err) {
             //directory doesn't exist
             console.log('Folder doesnt exist, so I made the folder ');
             console.log(outputDir);
             mkdirp(outputDir);
-            resolveStaticFiles();
+            return resolveStaticFiles();
         }
         if (!stats.isDirectory()) {
             console.error('/dist/static/ is not a directory');
@@ -24,7 +24,7 @@ function resolveStaticFiles() { //TODO: check if dist exists
             walkThroughPath(sourceDir, filesToAdd); //get all files 
             walkThroughPath(outputDir, filesThatExist); //get already existing files
 
-            filesToAdd = filesToAdd.filter(file => { //if filesToAdd are in filesthatexist remove them from the array
+            /*filesToAdd = filesToAdd.filter(file => { //if filesToAdd are in filesthatexist remove them from the array
                 const n = file.lastIndexOf('/');
                 const str = file.substring(n + 1);
                 return filesThatExist.every(existingFile => { //.every returns a boolean we can use to filter the array
@@ -32,14 +32,14 @@ function resolveStaticFiles() { //TODO: check if dist exists
                     const str2 = existingFile.substring(n2 + 1);
                     return str !== str2; //if string in to add is in existing return false -> remove from array
                 });
-            });
+            });*/
             filesToAdd.forEach(file => {
                 const fixedOutput = file.replace(sourceDir, outputDir); //replace source dir with output dir 
                 const dirs = fixedOutput.substring(0, fixedOutput.lastIndexOf('/'));
-                console.log('creating', dirs);
                 mkdirp(dirs); //create directorys if they dont exist
                 copyFile(file, fixedOutput);
             })
+            if (!exit) resolveStaticFiles(true);
         }
     });
 }
