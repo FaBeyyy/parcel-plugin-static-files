@@ -1,11 +1,14 @@
 {
-  "name": "parcel-plugin",
-  "version": "1.0.0",
+  "name": "parcel-plugin-static-files",
+  "version": "1.0.8",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "FaBeyyy",
+  "license": "ISC",
+  "dependencies": {
+    "mkdirp": "^0.5.1"
+  }
 }
