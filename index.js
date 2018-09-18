@@ -76,7 +76,6 @@ function copyFile(source, target) { //TODO add callback that is called on done
 
     function done(err) {
         if (!cbCalled) {
-            console.log();
             cbCalled = true;
         }
     }
@@ -86,8 +85,7 @@ function copyFile(source, target) { //TODO add callback that is called on done
 
 //
 module.exports = bundler => {
-    bundler.on("bundled", bundle => {
-        resolveStaticFiles();
-    })
+    resolveStaticFiles();
 }
-
+ 
+ 
