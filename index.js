@@ -5,7 +5,7 @@ const prePath = '../../';
 const appDir = path.dirname(require.main.filename);
 const outputDir = path.join(__dirname, "../../", '/dist/src/'); //relative to src folder
 const sourceDir = path.join(__dirname, "../../", '/src/');
-const fileExtensionsToCopy = ['json', 'html'];
+const fileExtensionsToCopy = ['json', 'html', 'svg', 'jpg'];
 let filesToAdd = []; //obj that has all files that should be added
 let filesThatExist = []; //obj that has all files that already exist 
 
@@ -40,6 +40,7 @@ function resolveStaticFiles(exit = false) { //TODO: check if dist exists
                 copyFile(file, fixedOutput);
             })
             if (!exit) resolveStaticFiles(true);
+            else console.log('Resolved static files :)');
         }
     });
 }
@@ -81,11 +82,10 @@ function copyFile(source, target) { //TODO add callback that is called on done
     }
 }
 
-
-
-//
 module.exports = bundler => {
-    resolveStaticFiles();
+    bundler.on('bundleStart', () => {
+        resolveStaticFiles();
+    })
 }
  
  
