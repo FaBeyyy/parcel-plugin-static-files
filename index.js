@@ -3,11 +3,16 @@ const path = require('path');
 const mkdirp = require('mkdirp');
 const prePath = '../../';
 const appDir = path.dirname(require.main.filename);
-const outputDir = path.join(__dirname, "../../", '/dist/src/'); //relative to src folder
-const sourceDir = path.join(__dirname, "../../", '/src/');
-const fileExtensionsToCopy = ['json', 'html', 'svg', 'jpg'];
+const outputDir = path.join(appDir, "", '/dist/src/'); //relative to src folder
+const sourceDir = path.join(appDir, "", '/src/');
+const outputDirStatic = path.join(appDir, "", 'dist/static/');
+const sourceDirStatic = path.join(appDir, "", '/static/');
+const fileExtensionsToCopy = ['json', 'html', 'svg', 'jpg']; 
+const fileExtensionsToCopyStatic = [...fileExtensionsToCopy, 'js'];
 let filesToAdd = []; //obj that has all files that should be added
 let filesThatExist = []; //obj that has all files that already exist 
+let timeForStatic = false;
+
 
 function resolveStaticFiles(exit = false) { //TODO: check if dist exists 
     fs.stat(outputDir, function (err, stats) {
@@ -16,14 +21,26 @@ function resolveStaticFiles(exit = false) { //TODO: check if dist exists
             console.log('Folder doesnt exist, so I made the folder ');
             console.log(outputDir);
             mkdirp(outputDir);
-            return resolveStaticFiles();
+            fs.stat(outputDirStatic, function (err, stats) {
+                if (err) {
+                    mkdirp(outputDirStatic); //create static output directory if not already there
+                }
+                return resolveStaticFiles();
+            })
         }
+        if (stats)
         if (!stats.isDirectory()) {
             console.error('/dist/static/ is not a directory');
         } else {
-            walkThroughPath(sourceDir, filesToAdd); //get all files 
-            walkThroughPath(outputDir, filesThatExist); //get already existing files
+            if (timeForStatic) {
+                filesToAdd = []; 
+                filesThatExist = [];
+            }
 
+            walkThroughPath(timeForStatic ? sourceDirStatic : sourceDir, filesToAdd); //get all files 
+            walkThroughPath(timeForStatic ? outputDirStatic : outputDir, filesThatExist); //get already existing files
+
+            timeForStatic = !timeForStatic;
             /*filesToAdd = filesToAdd.filter(file => { //if filesToAdd are in filesthatexist remove them from the array
                 const n = file.lastIndexOf('/');
                 const str = file.substring(n + 1);
@@ -82,10 +99,13 @@ function copyFile(source, target) { //TODO add callback that is called on done
     }
 }
 
+/*
 module.exports = bundler => {
     bundler.on('bundleStart', () => {
         resolveStaticFiles();
     })
-}
- 
- 
+}*/ 
+
+
+resolveStaticFiles();
+

@@ -12,8 +12,7 @@
     "mkdirp": "^0.5.1"
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/FaBeyyy/parcel-plugin-static-files.git"
+    "type": "git",
+    "url": "https://github.com/FaBeyyy/parcel-plugin-static-files.git"
   }
-  
 }
