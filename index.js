@@ -7,40 +7,28 @@ const outputDir = path.join(appDir, "", '/dist/src/'); //relative to src folder
 const sourceDir = path.join(appDir, "", '/src/');
 const outputDirStatic = path.join(appDir, "", 'dist/static/');
 const sourceDirStatic = path.join(appDir, "", '/static/');
-const fileExtensionsToCopy = ['json', 'html', 'svg', 'jpg']; 
+const fileExtensionsToCopy = ['json', 'html', 'svg', 'jpg'];
 const fileExtensionsToCopyStatic = [...fileExtensionsToCopy, 'js'];
 let filesToAdd = []; //obj that has all files that should be added
 let filesThatExist = []; //obj that has all files that already exist 
 let timeForStatic = false;
 
 
-function resolveStaticFiles(exit = false) { //TODO: check if dist exists 
+function resolveStaticFiles(sourceDir, outputDir, fileExtensionsToCopy) { //TODO: check if dist exists 
     fs.stat(outputDir, function (err, stats) {
         if (err) {
-            //directory doesn't exist
-            console.log('Folder doesnt exist, so I made the folder ');
-            console.log(outputDir);
             mkdirp(outputDir);
-            fs.stat(outputDirStatic, function (err, stats) {
-                if (err) {
-                    mkdirp(outputDirStatic); //create static output directory if not already there
-                }
-                return resolveStaticFiles();
-            })
+            return resolveStaticFiles(sourceDir, outputDir, fileExtensionsToCopy);
         }
-        if (stats)
-        if (!stats.isDirectory()) {
-            console.error('/dist/static/ is not a directory');
+        if (stats && !stats.isDirectory()) {
+            console.error('/dist/ is not a directory');
         } else {
-            if (timeForStatic) {
-                filesToAdd = []; 
-                filesThatExist = [];
-            }
+            filesToAdd = [];
+            filesThatExist = [];
 
-            walkThroughPath(timeForStatic ? sourceDirStatic : sourceDir, filesToAdd); //get all files 
-            walkThroughPath(timeForStatic ? outputDirStatic : outputDir, filesThatExist); //get already existing files
+            walkThroughPath(sourceDir, filesToAdd, fileExtensionsToCopy); //get all files 
+            walkThroughPath(outputDir, filesThatExist, fileExtensionsToCopy); //get already existing files
 
-            timeForStatic = !timeForStatic;
             /*filesToAdd = filesToAdd.filter(file => { //if filesToAdd are in filesthatexist remove them from the array
                 const n = file.lastIndexOf('/');
                 const str = file.substring(n + 1);
@@ -56,19 +44,17 @@ function resolveStaticFiles(exit = false) { //TODO: check if dist exists
                 mkdirp(dirs); //create directorys if they dont exist
                 copyFile(file, fixedOutput);
             })
-            if (!exit) resolveStaticFiles(true);
-            else console.log('Resolved static files :)');
         }
     });
 }
 
-function walkThroughPath(path, fileArray) { //synchronously walk through the folders and add files to an array
+function walkThroughPath(path, fileArray, fileExtensionsToCopy) { //synchronously walk through the folders and add files to an array
     const files = fs.readdirSync(path) //TODO: support folders with . notation by recursevly checking if it is a folder with fs.stat
     if (!files) return;
     files.forEach(file => {
         const newPath = path + file;
         if (file.indexOf('.') === -1) {//is folder
-            walkThroughPath(newPath + '/', fileArray);//if folder add /
+            walkThroughPath(newPath + '/', fileArray, fileExtensionsToCopy);//if folder add /
         } else { //is file
             if (fileExtensionsToCopy.includes(file.substring(file.lastIndexOf('.') + 1))) {//get file extension and look up if we should copy it 
                 fileArray.push(newPath);
@@ -99,13 +85,22 @@ function copyFile(source, target) { //TODO add callback that is called on done
     }
 }
 
-/*
+
 module.exports = bundler => {
     bundler.on('bundleStart', () => {
-        resolveStaticFiles();
+        resolveStaticFiles(sourceDir, outputDir, fileExtensionsToCopy);
+        resolveStaticFiles(sourceDirStatic, outputDirStatic, fileExtensionsToCopyStatic);
     })
-}*/ 
+}
 
+/*
+fs.readFile(appDir + '/package.json', 'utf8', (err, contents) => {
+    if (err) {
+        throw new Error('Error reading package.json', err);
+    } else {
+        const package = JSON.parse(contents);
 
-resolveStaticFiles();
+    }
+});*/
+
 
