@@ -87,7 +87,7 @@ function copyFile(source, target) { //TODO add callback that is called on done
 
 
 module.exports = bundler => {
-    bundler.on('bundleStart', () => {
+    bundler.on('buildStart', () => {
         resolveStaticFiles(sourceDir, outputDir, fileExtensionsToCopy);
         resolveStaticFiles(sourceDirStatic, outputDirStatic, fileExtensionsToCopyStatic);
     })
